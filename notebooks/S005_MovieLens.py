@@ -18,15 +18,31 @@ ratingSchema = StructType()\
 
 # COMMAND ----------
 
+# movieDf = spark.read.format("csv")\
+#           .option("header", True)\
+#           .schema(movieSchema)\
+#           .load("/FileStore/tables/movielens/movies.csv")
+
+# ratingDf = spark.read.format("csv")\
+#           .option("header", True)\
+#           .schema(ratingSchema)\
+#           .load("/FileStore/tables/movielens/ratings.csv")
+
+
+
+
+# COMMAND ----------
+
+# if we use directory instead of single file with extention, spark will load all the files in directory
 movieDf = spark.read.format("csv")\
           .option("header", True)\
           .schema(movieSchema)\
-          .load("/FileStore/tables/movielens/movies.csv")
+          .load("/mnt/aws/movies")
 
 ratingDf = spark.read.format("csv")\
           .option("header", True)\
           .schema(ratingSchema)\
-          .load("/FileStore/tables/movielens/ratings.csv")
+          .load("/mnt/aws/ratings")
 
 
 # COMMAND ----------
@@ -171,9 +187,35 @@ mostPopularMoviesDf.show()
 # COMMAND ----------
 
 print(mostPopularMoviesDf.rdd.getNumPartitions())
+mostPopularMoviesDf.cache()
+mostPopularMoviesDf.write.mode('overwrite')\
+                         .csv("/mnt/aws/top-movies")
+
+# COMMAND ----------
+
+# if we reuse the dataframe or rdd or further operations, or writing the results to db, other sourcees
+# to write jdbc (oltp: postgres etc), OLAP : redshift..., datalake: s3...
+# write csv, json, parquewt etc
+
+# mostPopularMoviesDf.explain(extended = True)
+
+
+
+# COMMAND ----------
 
 mostPopularMoviesDf.write.mode('overwrite')\
-                         .csv("/FileStore/tables/deloitte-jan-2022/top-moives")
+                         .json("/mnt/aws/top-movies-json")
+
+# COMMAND ----------
+
+mostPopularMoviesDf.write.mode('overwrite')\
+                         .parquet("/mnt/aws/top-movies-parquet")
+
+# COMMAND ----------
+
+# spark 2.x
+#mostPopularMoviesDf.write.mode('overwrite')\
+#                         .delta("/mnt/aws/top-movies-delta")
 
 # COMMAND ----------
 
